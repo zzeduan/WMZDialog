@@ -578,13 +578,17 @@
     NSInteger nextTotalNum = 0;
     NSInteger index = 0;
     self.dataArr = [NSMutableArray new];
-    for (int i = 0; i < NumberMounthes ; i++ ) {
+    NSInteger max = [NSDate month:self.param.wMaxDate] - self.currentMonth;
+    NSInteger min = self.currentMonth - [NSDate month:self.param.wMinDate];
+
+    for (int i = 0; i < min ; i++ ) {
         index = i;
         NSMutableArray *array = [NSMutableArray new];
         [self.dataArr addObject:array];
         BOOL resultLast =  [self updateDateYear:self.currentYear Month:self.currentMonth-i-1 index:self.dataArr.count - 1];
         if(resultLast) lastTotalNum += 1;
     }
+    
     [self.dataArr  sortUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
         return NSOrderedDescending;
     }];
@@ -592,16 +596,16 @@
     NSMutableArray *array = [NSMutableArray new];
     [self.dataArr addObject:array];
     BOOL resultCurrent = [self updateDateYear:self.currentYear Month:self.currentMonth index:self.dataArr.count - 1];
-    
-    for (int i = 0; i < NumberMounthes ; i++ ) {
+
+    for (int i = 0; i < max ; i++ ) {
         index += i;
         NSMutableArray *array = [NSMutableArray new];
         [self.dataArr addObject:array];
         BOOL resultNext = [self updateDateYear:self.currentYear Month:self.currentMonth+i+1 index:self.dataArr.count - 1];
         if(resultNext) nextTotalNum += 1;
     }
-    self.currentIndex = NumberMounthes;
-    if(lastTotalNum < NumberMounthes || nextTotalNum < NumberMounthes || !resultCurrent){
+    self.currentIndex = min;
+    if(lastTotalNum < min || nextTotalNum < max || !resultCurrent){
         WMZCalanderModel *firstModel = nil;
         if(!changeDate){
             self.currentIndex = 0;
@@ -881,23 +885,25 @@
             break;
         }
     }
-    /// 首个或者最后一个 预加载上个和下个
+    
     if (self.currentIndex  == 0 || self.currentIndex  == self.dataArr.count - 1 ) {
-        NSMutableArray *arr = [NSMutableArray new];
-        if (self.currentIndex  == 0) {
-            [self.dataArr insertObject:arr atIndex:0];
-        }else{
-            [self.dataArr addObject:arr];
-        }
-        [self updateDateYear:self.currentYear Month:self.currentIndex  == 0?(self.currentMonth-1):(self.currentMonth+1) index: (self.currentIndex == 0)?  0: (self.dataArr.count-1)];
         if([self.param.wMinMaxResultArr indexOfObject:DialogCalanderLimitCloseScroll] != NSNotFound){
             if(self.currentYear == [NSDate year:self.param.wMinDate] && self.currentMonth == [NSDate month:self.param.wMinDate] ){
                 return;
             }
             if (self.currentIndex == 0) {
-                [self scrollIndexPath:1 shouldReloadData:NO animal:NO first:NO];
+                [self scrollIndexPath:0 shouldReloadData:NO animal:NO first:NO];
             }
         }else{
+            /// 首个或者最后一个 预加载上个和下个
+            NSMutableArray *arr = [NSMutableArray new];
+            if (self.currentIndex  == 0) {
+                [self.dataArr insertObject:arr atIndex:0];
+            }else{
+                [self.dataArr addObject:arr];
+            }
+            [self updateDateYear:self.currentYear Month:self.currentIndex  == 0?(self.currentMonth-1):(self.currentMonth+1) index: (self.currentIndex == 0)?  0: (self.dataArr.count-1)];
+            
             if (self.currentIndex == 0) {
                 [self scrollIndexPath:1 shouldReloadData:NO animal:NO first:NO];
             }
@@ -1243,7 +1249,8 @@
     [self.contentView addSubview:self.dateLable];
     self.dateLable.frame = CGRectMake(0, self.contentView.frame.size.height*0.25, self.contentView.frame.size.width, self.contentView.frame.size.height*0.5);
     [self.contentView addSubview:self.circleLabel];
-    self.circleLabel.frame = CGRectMake(0, CGRectGetMaxY(self.contentView.frame), frame.size.width, 10);
+    self.circleLabel.frame = CGRectMake(0, CGRectGetMaxY(self.contentView.frame) - 10, frame.size.width, 10);
 }
 
 @end
+

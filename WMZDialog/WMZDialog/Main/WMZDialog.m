@@ -332,14 +332,8 @@ WMZDialog * Dialog(void){
                 }
             }
 
-            if ([self.mainView respondsToSelector:@selector(mz_setupCorner)]) {
-                UIRectCorner corner = [self.mainView mz_setupCorner];
-                if (corner != -99999)
-                    [WMZDialogUntils setCornerView:self.mainView radio:CGSizeMake(self.param.wMainRadius,self.param.wMainRadius) rectCorner:corner];
-            }else{
-                self.mainView.layer.cornerRadius = self.param.wMainRadius;
-                self.mainView.layer.masksToBounds = YES;
-            }
+            self.mainView.layer.cornerRadius = self.param.wMainRadius;
+            self.mainView.layer.masksToBounds = YES;
         }
 
         [self showView:showView];
